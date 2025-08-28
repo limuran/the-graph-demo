@@ -8,82 +8,78 @@ const SimpleGraphDemo = () => {
   const [searchAddress, setSearchAddress] = useState('');
   const [error, setError] = useState('');
 
-  // Uniswap V3 subgraph endpoint
-  const UNISWAP_ENDPOINT = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3";
-  
-  // ENS subgraph endpoint  
-  const ENS_ENDPOINT = "https://api.thegraph.com/subgraphs/name/ensdomains/ens";
-
-  // GraphQL查询 - 获取Uniswap流动性池数据
-  const UNISWAP_QUERY = `
-    query GetTopPools {
-      pools(first: 10, orderBy: totalValueLockedUSD, orderDirection: desc) {
-        id
-        token0 {
-          id
-          symbol
-          name
-        }
-        token1 {
-          id
-          symbol  
-          name
-        }
-        feeTier
-        totalValueLockedUSD
-        volumeUSD
-        txCount
-      }
-    }
-  `;
-
-  // GraphQL查询 - 获取ENS域名数据
-  const ENS_QUERY = `
-    query GetDomains($address: String!) {
-      domains(where: { owner: $address }, first: 5) {
-        id
-        name
-        owner {
-          id
-        }
-        resolver {
-          id
-        }
-        registrationDate
-        expiryDate
-      }
-    }
-  `;
-
-  // 获取Uniswap数据
+  // 获取Uniswap数据 - 使用模拟数据避免CORS问题
   const fetchUniswapData = async () => {
     setLoading(true);
     setError('');
     
     try {
-      const response = await fetch(UNISWAP_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: UNISWAP_QUERY })
-      });
+      // 模拟真实的Uniswap V3数据结构
+      const mockUniswapData = {
+        pools: [
+          {
+            id: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+            token0: { symbol: "USDC", name: "USD Coin", id: "0xa0b86a33e6bb0b01fb84e..." },
+            token1: { symbol: "WETH", name: "Wrapped Ether", id: "0xc02aaa39b223fe8d0a0e..." },
+            feeTier: "500",
+            totalValueLockedUSD: "285420000.123456789",
+            volumeUSD: "45720000.987654321",
+            txCount: "1284567"
+          },
+          {
+            id: "0x4e68ccd3e89f51c3074ca5072bbac773960dfa36",
+            token0: { symbol: "WETH", name: "Wrapped Ether", id: "0xc02aaa39b223fe8d0a0e..." },
+            token1: { symbol: "USDT", name: "Tether USD", id: "0xdac17f958d2ee523a220..." },
+            feeTier: "500",
+            totalValueLockedUSD: "156780000.456789123",
+            volumeUSD: "28930000.123456789",
+            txCount: "892341"
+          },
+          {
+            id: "0x60594a405d53811d3bc4766596efd80fd545a270",
+            token0: { symbol: "WETH", name: "Wrapped Ether", id: "0xc02aaa39b223fe8d0a0e..." },
+            token1: { symbol: "DAI", name: "Dai Stablecoin", id: "0x6b175474e89094c44da9..." },
+            feeTier: "3000",
+            totalValueLockedUSD: "98450000.789123456",
+            volumeUSD: "15670000.456789123",
+            txCount: "567234"
+          },
+          {
+            id: "0x3416cf6c708da44db2624d63ea0aaef7113527c6",
+            token0: { symbol: "USDC", name: "USD Coin", id: "0xa0b86a33e6bb0b01fb84e..." },
+            token1: { symbol: "USDT", name: "Tether USD", id: "0xdac17f958d2ee523a220..." },
+            feeTier: "100",
+            totalValueLockedUSD: "87230000.234567891",
+            volumeUSD: "23450000.789123456",
+            txCount: "1123789"
+          },
+          {
+            id: "0xa3f558aebaecaf0e11ca4b2199cc5ed341edfd74",
+            token0: { symbol: "LDO", name: "Lido DAO Token", id: "0x5a98fcc4e6b9e0e1b2e..." },
+            token1: { symbol: "WETH", name: "Wrapped Ether", id: "0xc02aaa39b223fe8d0a0e..." },
+            feeTier: "3000",
+            totalValueLockedUSD: "65890000.567891234",
+            volumeUSD: "12340000.234567891",
+            txCount: "456123"
+          }
+        ]
+      };
       
-      const result = await response.json();
+      // 模拟网络延迟
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (result.errors) {
-        throw new Error(result.errors[0].message);
-      }
-      
-      setUniswapData(result.data);
-      console.log('Uniswap数据:', result.data);
+      setUniswapData(mockUniswapData);
+      console.log('📊 Uniswap数据 (演示):', mockUniswapData);
+      console.log('💡 这是模拟数据，展示The Graph的真实数据结构');
     } catch (err) {
-      setError('获取Uniswap数据失败: ' + err.message);
+      setError('获取数据失败: ' + err.message);
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // 搜索ENS域名
+  // 搜索ENS域名 - 使用模拟数据
   const searchENS = async () => {
     if (!searchAddress) return;
     
@@ -91,23 +87,45 @@ const SimpleGraphDemo = () => {
     setError('');
     
     try {
-      const response = await fetch(ENS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          query: ENS_QUERY,
-          variables: { address: searchAddress.toLowerCase() }
-        })
-      });
+      // 模拟ENS查询结果
+      let mockEnsData = { domains: [] };
       
-      const result = await response.json();
-      
-      if (result.errors) {
-        throw new Error(result.errors[0].message);
+      // 为一些知名地址提供模拟ENS数据
+      if (searchAddress.toLowerCase() === '0xd8da6bf26964af9d7eed9e03e53415d37aa96045') {
+        // Vitalik的地址
+        mockEnsData = {
+          domains: [
+            {
+              id: "vitalik.eth",
+              name: "vitalik.eth",
+              owner: { id: searchAddress.toLowerCase() },
+              resolver: { id: "0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41" },
+              registrationDate: "1580515200", // 2020年2月
+              expiryDate: "1893456000" // 2030年
+            }
+          ]
+        };
+      } else if (searchAddress.toLowerCase() === '0x5d3a536e4d6dbd6114cc1ead35777bab948e3643') {
+        // 另一个示例地址
+        mockEnsData = {
+          domains: [
+            {
+              id: "example.eth", 
+              name: "example.eth",
+              owner: { id: searchAddress.toLowerCase() },
+              resolver: { id: "0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41" },
+              registrationDate: "1577836800",
+              expiryDate: "1890864000"
+            }
+          ]
+        };
       }
       
-      setEnsData(result.data);
-      console.log('ENS数据:', result.data);
+      // 模拟网络延迟
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      setEnsData(mockEnsData);
+      console.log('🔍 ENS数据 (演示):', mockEnsData);
     } catch (err) {
       setError('搜索ENS失败: ' + err.message);
       console.error(err);
@@ -142,7 +160,24 @@ const SimpleGraphDemo = () => {
     <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">The Graph 入门Demo</h1>
-        <p className="text-gray-600">使用现有的subgraph读取链上数据</p>
+        <p className="text-gray-600">学习GraphQL查询区块链数据的基本概念</p>
+      </div>
+
+      {/* CORS说明 */}
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+        <div className="flex items-start space-x-3">
+          <div className="text-orange-600 mt-1">⚠️</div>
+          <div className="text-orange-800">
+            <h3 className="font-medium mb-1">关于CORS限制</h3>
+            <p className="text-sm">
+              由于浏览器安全策略，直接调用The Graph API会遇到跨域问题。
+              这个demo使用模拟数据来展示功能，但GraphQL查询语法和数据结构都是真实的。
+            </p>
+            <p className="text-sm mt-2">
+              💡 查看 <code>CORS-SOLUTIONS.md</code> 了解生产环境解决方案
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* 介绍卡片 */}
@@ -169,7 +204,7 @@ const SimpleGraphDemo = () => {
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center">
           <Search className="mr-2" size={20} />
-          搜索ENS域名
+          搜索ENS域名 (演示)
         </h2>
         <p className="text-gray-600 mb-4">输入以太坊地址，查看它拥有的ENS域名</p>
         
@@ -246,7 +281,7 @@ const SimpleGraphDemo = () => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold flex items-center">
             <Database className="mr-2" size={20} />
-            Uniswap V3 顶级流动性池
+            Uniswap V3 顶级流动性池 (演示数据)
           </h2>
           <button
             onClick={fetchUniswapData}
@@ -356,41 +391,62 @@ const SimpleGraphDemo = () => {
 
       {/* GraphQL查询示例 */}
       <div className="mt-8 bg-gray-900 rounded-lg p-6 text-white">
-        <h3 className="text-lg font-semibold mb-4 text-green-400">📝 GraphQL查询示例</h3>
-        <p className="text-gray-300 mb-4">以上数据使用的GraphQL查询语句：</p>
+        <h3 className="text-lg font-semibold mb-4 text-green-400">📝 真实的GraphQL查询</h3>
+        <p className="text-gray-300 mb-4">这些是实际使用的GraphQL查询语句（可以在Postman中测试）：</p>
         
-        <div className="bg-gray-800 rounded p-4 mb-4">
-          <pre className="text-sm text-green-300 overflow-x-auto">
-            <code>{`query GetTopPools {
-  pools(first: 10, orderBy: totalValueLockedUSD, orderDirection: desc) {
-    id
-    token0 { symbol, name }
-    token1 { symbol, name }
-    feeTier
-    totalValueLockedUSD
-    volumeUSD
-    txCount
-  }
-}`}</code>
-          </pre>
-        </div>
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-yellow-400 mb-2">Uniswap V3 查询:</h4>
+            <div className="bg-gray-800 rounded p-4">
+              <pre className="text-sm text-green-300 overflow-x-auto">
+                <code>{`POST https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <div className="text-yellow-400 font-medium">🔍 查询说明:</div>
-            <ul className="mt-2 space-y-1 text-gray-300">
-              <li>• <code>first: 10</code> - 获取前10条记录</li>
-              <li>• <code>orderBy</code> - 按总锁定价值排序</li>
-              <li>• <code>orderDirection: desc</code> - 降序排列</li>
-            </ul>
+{
+  "query": "query { pools(first: 10, orderBy: totalValueLockedUSD, orderDirection: desc) { id token0 { symbol name } token1 { symbol name } feeTier totalValueLockedUSD volumeUSD txCount } }"
+}`}</code>
+              </pre>
+            </div>
           </div>
+          
           <div>
-            <div className="text-yellow-400 font-medium">📊 返回字段:</div>
-            <ul className="mt-2 space-y-1 text-gray-300">
-              <li>• 代币对信息 (symbol, name)</li>
-              <li>• 手续费等级 (feeTier)</li>
-              <li>• 锁定价值和交易量</li>
-            </ul>
+            <h4 className="text-yellow-400 mb-2">ENS 查询:</h4>
+            <div className="bg-gray-800 rounded p-4">
+              <pre className="text-sm text-green-300 overflow-x-auto">
+                <code>{`POST https://api.thegraph.com/subgraphs/name/ensdomains/ens
+
+{
+  "query": "query GetDomains($address: String!) { domains(where: { owner: $address }, first: 5) { id name registrationDate expiryDate } }",
+  "variables": { "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045" }
+}`}</code>
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CORS解决方案 */}
+      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 className="font-semibold text-blue-900 mb-3">🔧 生产环境解决方案:</h3>
+        <div className="text-blue-800 space-y-3 text-sm">
+          <div>
+            <strong>1. 后端API代理</strong> (推荐)
+            <div className="mt-1 text-xs bg-blue-100 p-2 rounded font-mono">
+              Express.js + CORS → The Graph API
+            </div>
+          </div>
+          
+          <div>
+            <strong>2. Next.js API路由</strong>
+            <div className="mt-1 text-xs bg-blue-100 p-2 rounded font-mono">
+              /api/graph/[...subgraph].js
+            </div>
+          </div>
+          
+          <div>
+            <strong>3. 官方Graph Client</strong>
+            <div className="mt-1 text-xs bg-blue-100 p-2 rounded font-mono">
+              @graphprotocol/graph-client
+            </div>
           </div>
         </div>
       </div>
@@ -399,43 +455,43 @@ const SimpleGraphDemo = () => {
       <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
         <h3 className="font-semibold text-yellow-900 mb-3">🚀 下一步学习:</h3>
         <div className="text-yellow-800 space-y-2 text-sm">
-          <p><strong>1. 理解GraphQL:</strong> 学习如何构建查询、使用变量、嵌套字段</p>
-          <p><strong>2. 探索更多Subgraph:</strong> 访问 <a href="https://thegraph.com/explorer" className="underline" target="_blank" rel="noopener noreferrer">Graph Explorer</a> 查看更多可用的subgraph</p>
-          <p><strong>3. 创建自己的Subgraph:</strong> 为你的智能合约创建自定义的数据索引</p>
-          <p><strong>4. 集成到DApp:</strong> 将The Graph查询集成到你的Web3应用中</p>
+          <p><strong>1. 测试真实查询:</strong> 在Postman中测试上面的GraphQL查询</p>
+          <p><strong>2. 设置后端代理:</strong> 参考CORS-SOLUTIONS.md创建后端服务</p>
+          <p><strong>3. 探索更多Subgraph:</strong> 访问 <a href="https://thegraph.com/explorer" className="underline" target="_blank" rel="noopener noreferrer">Graph Explorer</a></p>
+          <p><strong>4. 创建自定义Subgraph:</strong> 为你的智能合约创建数据索引</p>
         </div>
       </div>
 
       {/* 技术细节 */}
       <div className="mt-6 bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">🛠️ 技术实现细节</h3>
+        <h3 className="text-lg font-semibold mb-4">🛠️ 学习要点</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">代码结构:</h4>
+            <h4 className="font-medium text-gray-900 mb-2">GraphQL基础:</h4>
             <ul className="text-sm text-gray-600 space-y-1">
-              <li>• React Hooks管理状态</li>
-              <li>• Fetch API发送GraphQL请求</li>
-              <li>• 错误处理和加载状态</li>
-              <li>• 响应式UI设计</li>
+              <li>• 查询语法和字段选择</li>
+              <li>• 变量使用和条件过滤</li>
+              <li>• 分页和排序参数</li>
+              <li>• 嵌套查询和关联数据</li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">使用的Subgraph:</h4>
+            <h4 className="font-medium text-gray-900 mb-2">The Graph概念:</h4>
             <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Uniswap V3: 去中心化交易所数据</li>
-              <li>• ENS: 以太坊域名服务</li>
-              <li>• 都是现成的公开subgraph</li>
-              <li>• 无需部署自己的合约</li>
+              <li>• Subgraph: 智能合约的数据API</li>
+              <li>• 实体和关系定义</li>
+              <li>• 事件监听和数据映射</li>
+              <li>• 去中心化的数据索引</li>
             </ul>
           </div>
         </div>
         
         <div className="mt-4 p-4 bg-gray-50 rounded">
           <p className="text-sm text-gray-600">
-            💡 <strong>小贴士:</strong> 这个demo展示了The Graph的核心功能 - 
-            通过GraphQL查询获取结构化的链上数据。你可以在浏览器开发者工具的Console中看到完整的返回数据。
+            💡 <strong>重要:</strong> 虽然使用了模拟数据，但这个demo完美展示了The Graph的工作流程。
+            GraphQL查询语法、数据结构、UI交互都是真实的生产环境模式。
           </p>
         </div>
       </div>
