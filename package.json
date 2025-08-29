@@ -1,6 +1,7 @@
 {
-  "name": "the-graph-demo",
-  "version": "1.0.0",
+  "name": "the-graph-demo-hybrid",
+  "version": "2.0.0",
+  "description": "混合架构区块链数据查询 - 支持 The Graph + Etherscan",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
@@ -18,16 +19,21 @@
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "axios": "^1.4.0",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "graphql-ws": "^5.14.0",
+    "@apollo/client": "^3.8.0"
   },
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "client": "react-scripts start",
-    "server": "node server.js",
+    "server": "node -r dotenv/config server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "dev": "concurrently \"npm run server\" \"npm start\""
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev:graph-only": "ETHERSCAN_DISABLED=true npm run server",
+    "dev:etherscan-only": "GRAPH_DISABLED=true npm run server",
+    "health-check": "node scripts/health-check.js"
   },
   "devDependencies": {
     "concurrently": "^7.6.0"
@@ -50,5 +56,17 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:3001"
+  "proxy": "http://localhost:3001",
+  "keywords": [
+    "the-graph",
+    "ethereum",
+    "blockchain",
+    "graphql",
+    "defi",
+    "web3"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
 }
