@@ -1,7 +1,7 @@
 {
   "name": "the-graph-demo-hybrid",
   "version": "2.0.0",
-  "description": "混合架构区块链数据查询 - 支持 The Graph + Etherscan",
+  "description": "混合架构区块链数据查询 - 支持 The Graph 官方子图 + Etherscan",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
@@ -24,16 +24,17 @@
     "@apollo/client": "^3.8.0"
   },
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "concurrently \"npm run server-hybrid\" \"npm run client\"",
     "client": "react-scripts start",
     "server": "node -r dotenv/config server.js",
+    "server-hybrid": "node -r dotenv/config server-hybrid.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "dev:graph-only": "ETHERSCAN_DISABLED=true npm run server",
-    "dev:etherscan-only": "GRAPH_DISABLED=true npm run server",
-    "health-check": "node scripts/health-check.js"
+    "dev": "concurrently \"npm run server-hybrid\" \"npm run client\"",
+    "dev:original": "concurrently \"npm run server\" \"npm run client\"",
+    "health-check": "curl -s http://localhost:3001/health | jq",
+    "start-script": "chmod +x start.sh && ./start.sh"
   },
   "devDependencies": {
     "concurrently": "^7.6.0"
@@ -59,14 +60,22 @@
   "proxy": "http://localhost:3001",
   "keywords": [
     "the-graph",
-    "ethereum",
+    "ethereum", 
     "blockchain",
     "graphql",
     "defi",
-    "web3"
+    "web3",
+    "uniswap",
+    "hybrid"
   ],
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/limuran/the-graph-demo.git"
+  },
+  "author": "limuran",
+  "license": "MIT"
 }
